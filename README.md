@@ -20,7 +20,7 @@ Brainstorm Buddy is a Slack bot designed to facilitate brainstorming sessions an
 ## Getting Started
 
 1. Clone the repository:
-   git clone https://github.com/yourusername/brainstorm-buddy.git
+   git clone https://github.com/yeonholee50/brainstorm-buddy.git
 2. Install dependencies:
     cd brainstorm-buddy
     npm install
