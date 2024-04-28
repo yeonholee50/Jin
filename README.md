@@ -30,3 +30,20 @@ Brainstorm Buddy is a Slack bot designed to facilitate brainstorming sessions an
 4. Start the bot:
     npm start
 5. Invite the bot to your Slack workspace and add it to channels where you want it to participate in brainstorming sessions.
+
+## Usage
+
+- Connect to the server using WebSocket at `ws://localhost:3000/ws?userId=<userId>`.
+- Use the provided WebSocket API to authenticate, send rich text formatting changes, and user cursor positions.
+- Use the provided REST API endpoints for managing posts, comments, and likes.
+
+## API Endpoints
+
+- `POST /posts`: Create a new post.
+- `GET /posts`: Get all posts.
+- `POST /comments`: Create a new comment for a post.
+- `POST /posts/:postId/like`: Like a post.
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests for any enhancements or bug fixes.
