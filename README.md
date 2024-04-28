@@ -1,4 +1,4 @@
-# Brainstorm Buddy: The Innovative Slack Bot for Idea Generation
+# Brainstorm Buddy: The Slack Bot for Idea Generation
 
 Brainstorm Buddy is a Slack bot designed to facilitate brainstorming sessions and inspire creativity within teams.
 
