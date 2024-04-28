@@ -10,20 +10,39 @@ const wss = new WebSocket.Server({ noServer: true });
 
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
+    let userId;
+
     ws.on('message', (message) => {
-        // Broadcast the received message to all connected clients
-        broadcastMessage(JSON.parse(message));
+        const { type, payload } = JSON.parse(message);
+
+        switch (type) {
+            case 'auth':
+                userId = payload.userId;
+                addUser(userId, ws);
+                break;
+            case 'cursor':
+                // Broadcast user cursor position to all other clients
+                broadcastMessage({ type: 'cursor', payload });
+                break;
+            case 'richText':
+                // Broadcast rich text formatting changes to all other clients
+                broadcastMessage({ type: 'richText', payload });
+                break;
+            default:
+                break;
+        }
+    });
+
+    ws.on('close', () => {
+        if (userId) {
+            removeUser(userId);
+        }
     });
 });
 
 // Middleware to upgrade HTTP requests to WebSocket requests
 router.ws('/ws', (ws, req) => {
-    const { userId } = req.query;
-    addUser(userId, ws);
-
-    ws.on('close', () => {
-        removeUser(userId);
-    });
+    // No authentication needed here, as it's handled in the message handler
 });
 
 // Route to get connected users
@@ -47,4 +66,5 @@ router.post('/updateDocument', (req, res) => {
 });
 
 module.exports = router;
+
 
