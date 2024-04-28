@@ -3,7 +3,9 @@ const WebSocket = require('ws');
 const { addUser, removeUser, getConnectedUsers, broadcastMessage } = require('./utils/realtime_collaboration');
 const { getSharedDocument, updateSharedDocument } = require('./controllers/text_document');
 
+
 const router = express.Router();
+const { Post, Comment, User } = require('./models');
 
 // WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
@@ -63,6 +65,71 @@ router.post('/updateDocument', (req, res) => {
     updateSharedDocument(newContent);
     broadcastMessage({ type: 'updateDocument', content: newContent });
     res.sendStatus(200);
+});
+
+// Route to create a new post
+router.post('/posts', async (req, res) => {
+    const { title, content, authorId } = req.body;
+
+    try {
+        const newPost = new Post({
+            title,
+            content,
+            author: authorId
+        });
+
+        await newPost.save();
+        res.status(201).json(newPost);
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ error: 'Could not create post' });
+    }
+});
+
+// Route to get all posts
+router.get('/posts', async (req, res) => {
+    try {
+        const posts = await Post.find().populate('author', 'username').populate('comments').populate('likes');
+        res.json(posts);
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ error: 'Could not fetch posts' });
+    }
+});
+
+// Route to create a new comment
+router.post('/comments', async (req, res) => {
+    const { content, authorId, postId } = req.body;
+
+    try {
+        const newComment = new Comment({
+            content,
+            author: authorId,
+            post: postId
+        });
+
+        await newComment.save();
+
+        const post = await Post.findByIdAndUpdate(postId, { $push: { comments: newComment._id } }, { new: true });
+        res.status(201).json(post);
+    } catch (error) {
+        console.error('Error creating comment:', error);
+        res.status(500).json({ error: 'Could not create comment' });
+    }
+});
+
+// Route to like a post
+router.post('/posts/:postId/like', async (req, res) => {
+    const { userId } = req.body;
+    const { postId } = req.params;
+
+    try {
+        const post = await Post.findByIdAndUpdate(postId, { $addToSet: { likes: userId } }, { new: true });
+        res.json(post);
+    } catch (error) {
+        console.error('Error liking post:', error);
+        res.status(500).json({ error: 'Could not like post' });
+    }
 });
 
 module.exports = router;
