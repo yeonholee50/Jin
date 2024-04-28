@@ -13,8 +13,8 @@ Brainstorm Buddy is a Slack bot designed to facilitate brainstorming sessions an
 ## Technical Implementation
 
 - **Slack API:** The bot interacts with the Slack API to listen for messages, respond to user requests, and post updates within Slack channels.
-- **NLP and ML:** Brainstorm Buddy uses natural language processing (NLP) and machine learning (ML) techniques to analyze message content, identify keywords, and generate prompts or suggestions.
-- **Database:** Ideas submitted by users are stored and managed in a database (e.g., MongoDB) to maintain a centralized repository for brainstorming sessions.
+- **NLP and ML:** Brainstorm Buddy uses natural language processing (NLP) and machine learning (ML) techniques to analyze message content, identify keywords, and generate prompts or suggestions. (Not Implemented Yet - Currently Bayes Net)
+- **Database:** Ideas submitted by users are stored and managed in a database (MongoDB) to maintain a centralized repository for brainstorming sessions.
 - **Integration:** The bot integrates with external tools and services commonly used for project management or idea development, enhancing collaboration and productivity.
 
 ## Getting Started
