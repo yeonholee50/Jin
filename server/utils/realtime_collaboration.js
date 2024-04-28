@@ -1,7 +1,9 @@
-const connectedUsers = new Set();
+const WebSocket = require('ws');
 
-const addUser = (userId) => {
-    connectedUsers.add(userId);
+const connectedUsers = new Map(); // Map to store WebSocket connections of users
+
+const addUser = (userId, ws) => {
+    connectedUsers.set(userId, ws);
     console.log(`User ${userId} connected.`);
 };
 
@@ -11,11 +13,19 @@ const removeUser = (userId) => {
 };
 
 const getConnectedUsers = () => {
-    return Array.from(connectedUsers);
+    return Array.from(connectedUsers.keys());
+};
+
+const broadcastMessage = (message) => {
+    connectedUsers.forEach(ws => {
+        ws.send(JSON.stringify(message));
+    });
 };
 
 module.exports = {
     addUser,
     removeUser,
-    getConnectedUsers
+    getConnectedUsers,
+    broadcastMessage
 };
+

@@ -1,20 +1,29 @@
 const express = require('express');
-const router = express.Router();
-const { addUser, removeUser, getConnectedUsers } = require('./utils/realtime_collaboration');
+const WebSocket = require('ws');
+const { addUser, removeUser, getConnectedUsers, broadcastMessage } = require('./utils/realtime_collaboration');
 const { getSharedDocument, updateSharedDocument } = require('./controllers/text_document');
 
-// Route to add a user
-router.post('/addUser', (req, res) => {
-    const { userId } = req.body;
-    addUser(userId);
-    res.sendStatus(200);
+const router = express.Router();
+
+// WebSocket server
+const wss = new WebSocket.Server({ noServer: true });
+
+// Handle WebSocket connections
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        // Broadcast the received message to all connected clients
+        broadcastMessage(JSON.parse(message));
+    });
 });
 
-// Route to remove a user
-router.post('/removeUser', (req, res) => {
-    const { userId } = req.body;
-    removeUser(userId);
-    res.sendStatus(200);
+// Middleware to upgrade HTTP requests to WebSocket requests
+router.ws('/ws', (ws, req) => {
+    const { userId } = req.query;
+    addUser(userId, ws);
+
+    ws.on('close', () => {
+        removeUser(userId);
+    });
 });
 
 // Route to get connected users
@@ -33,7 +42,9 @@ router.get('/sharedDocument', (req, res) => {
 router.post('/updateDocument', (req, res) => {
     const { newContent } = req.body;
     updateSharedDocument(newContent);
+    broadcastMessage({ type: 'updateDocument', content: newContent });
     res.sendStatus(200);
 });
 
 module.exports = router;
+
