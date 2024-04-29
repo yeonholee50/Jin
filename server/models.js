@@ -21,7 +21,10 @@ const commentSchema = new Schema({
 const userSchema = new Schema({
     username: String,
     email: String,
-    password: String
+    password: String,
+    posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+    likes: [{ type: Schema.Types.ObjectId, ref: 'Post' }]
 });
 
 const Post = mongoose.model('Post', postSchema);
