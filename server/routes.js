@@ -60,6 +60,26 @@ router.get('/sharedDocument', (req, res) => {
     res.json({ content: documentContent });
 });
 
+// Route to get user analytics
+router.get('/userAnalytics', async (req, res) => {
+    try {
+        const users = await User.find().populate('posts').populate('comments').populate('likes');
+        const userAnalytics = users.map(user => {
+            return {
+                userId: user._id,
+                username: user.username,
+                numPosts: user.posts.length,
+                numComments: user.comments.length,
+                numLikes: user.likes.length
+            };
+        });
+        res.json(userAnalytics);
+    } catch (error) {
+        console.error('Error fetching user analytics:', error);
+        res.status(500).json({ error: 'Could not fetch user analytics' });
+    }
+});
+
 // Route to update shared document
 router.post('/updateDocument', (req, res) => {
     const { newContent } = req.body;
