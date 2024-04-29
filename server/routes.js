@@ -6,6 +6,7 @@ const { getSharedDocument, updateSharedDocument } = require('./controllers/text_
 
 const router = express.Router();
 const { Post, Comment, User } = require('./models');
+const { sendNotification } = require('./utils/notifications');
 
 // WebSocket server
 const wss = new WebSocket.Server({ noServer: true });
@@ -112,6 +113,12 @@ router.post('/comments', async (req, res) => {
 
         const post = await Post.findByIdAndUpdate(postId, { $push: { comments: newComment._id } }, { new: true });
         res.status(201).json(post);
+
+        // Notify post author about the new comment
+        const postAuthor = await User.findById(post.author);
+        if (postAuthor) {
+            sendNotification(postAuthor._id, { type: 'notification', message: `New comment on your post: ${post.title}` });
+        }
     } catch (error) {
         console.error('Error creating comment:', error);
         res.status(500).json({ error: 'Could not create comment' });
