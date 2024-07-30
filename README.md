@@ -54,7 +54,8 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
     MONGODB_URI=your-mongodb-connection-string
 
 4. **Start the Bot**
-    npm start
+    - If you want to start server on laptop: npm start
+    - If you want to start server remotely, I advise using Replit because it's free and has a clean UI 😊
 
 ### **Usage**
 - Add Jin to Your Slack Workspace: Follow Slack’s instructions to add a new app to your workspace and configure it with the API token.
