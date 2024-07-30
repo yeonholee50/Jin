@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import logging
 import socket
 import time
-
+from flask import Flask
 
 
 def main():
@@ -22,7 +22,5 @@ def main():
         print("Hello World Posted")
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 4000))
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.bind((socket.gethostname(), port))
+    
     main()
