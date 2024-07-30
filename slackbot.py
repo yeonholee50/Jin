@@ -16,13 +16,13 @@ def main():
     client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
     
     if client:
-        logging.info("Jin has successfully connected")
+        print("Jin has successfully connected")
     else:
-        logging.error("Jin has failed to connect")
+        print("Jin has failed to connect")
     while True:
         time.sleep(10)
         client.chat_postMessage(channel="#testbot", text="Hello World")
-        logging.info("Hello World Posted")
+        print("Hello World Posted")
 
 if __name__ == "__main__":
     
