@@ -18,6 +18,7 @@ client = slack.WebClient(token=SLACK_TOKEN)
 
 BOT_ID = client.api_call("auth.test")['user_id']
 
+
 @slack_event_adapter.on('message')
 def message(payload):
     event = payload.get('event', {})
@@ -32,26 +33,31 @@ def message(payload):
 
         # Insert payload into text_history collection
         text_history_collection = db.text_history
-        text_history_collection.insert_one(payload)
+        text_history_collection.insert_one({
+            'channel_id': channel_id,
+            'user_id': user_id,
+            'text': text,
+            'payload': payload
+        })
 
         # Update or insert into count collection
         count_collection = db.count
-        user_document = count_collection.find_one({'user_id': user_id})
+        user_document = count_collection.find_one({'user_id': user_id, 'channel_id': channel_id})
 
         if user_document:
             count_collection.find_one_and_update(
-                {'user_id': user_id},
+                {'user_id': user_id, 'channel_id': channel_id},
                 {'$inc': {'count': 1}}
             )
         else:
-            count_collection.insert_one({'user_id': user_id, 'count': 1})
+            count_collection.insert_one({'user_id': user_id, 'channel_id': channel_id, 'count': 1})
 
         mongo_client.close()
 
         
 
 
-        client.chat_postMessage(channel=channel_id, text=text)
+        
 
 # will record the message count every time in the mongo
 @app.route('/message-count', methods=['POST', 'GET'])
@@ -59,18 +65,19 @@ def message_count():
     data = request.form
     user_id = data.get('user_id')
     channel_id = data.get('channel_id')
-    text = data.get('text')
     connection_string = MONGO_DB
     mongo_client = MongoClient(connection_string)
     db = mongo_client.sample
     collection = db.count
-    cursor = collection.find({'user_id': user_id})
-    if not cursor:
-        client.chat_postMessage(channel=channel_id, text='0')
+    document = collection.find_one({'user_id': user_id, 'channel_id': channel_id})
+    
+    if not document:
+        client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
     else:
-        doc = cursor[0]
-        count = doc['count']
-        client.chat_postMessage(channel=channel_id, text=f'you have talked for a total of {count}')
+        count = document['count']
+        client.chat_postMessage(channel=channel_id, text=f'You have talked for a total of {count} messages in this channel.')
+    
+    mongo_client.close()
     return Response(), 200
 
 
