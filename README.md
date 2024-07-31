@@ -2,13 +2,13 @@
 
 Jin is a versatile Slackbot designed to enhance your Slack experience by integrating seamlessly with MongoDB. Jin helps you manage and interact with your data, automate tasks, and streamline your workflow.
 
-## **Current Features**
-- **`/message-count`**: Lists number of messages sent by user on that specified channel. ✅ 
-- **`/previous-messages`**: Lists previous messages sent by user on that specified channel. ✅ 
+- ✅ means features that have been implemented.
 
 ### **Basic Commands**
-- **`/help`**: Lists available commands and their descriptions.
-- **`/ping`**: Confirms Jin’s activity with a simple acknowledgment.
+- **`/message-count`**: Lists number of messages sent by user on that specified channel. ✅ 
+- **`/previous-messages`**: Lists previous messages sent by user on that specified channel. ✅ 
+- **`/help`**: Lists available commands and their descriptions. ✅
+- **`/ping`**: Confirms Jin’s activity with a simple acknowledgment. ✅
 
 ### **Database Interactions**
 - **`/add [item]`**: Adds a new item or record to the MongoDB database.
