@@ -80,6 +80,28 @@ def message_count():
     mongo_client.close()
     return Response(), 200
 
+@app.route('/previous-messages', methods=['POST', 'GET'])
+def previous_messages():
+    data = request.form
+    print(data)
+    user_id = data.get('user_id')
+    channel_id = data.get('channel_id')
+    connection_string = MONGO_DB
+    mongo_client = MongoClient(connection_string)
+    db = mongo_client.sample
+    collection = db.text_history
+    cursor = collection.find({'user_id': user_id, 'channel_id': channel_id})
+    if not cursor:
+        client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
+    else:
+        complete_text = ""
+        for doc in cursor:
+            complete_text = complete_text + doc['text'] + '\n'
+        client.chat_postMessage(channel=channel_id, text=complete_text)
+    mongo_client.close()
+    return Response(), 200
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
