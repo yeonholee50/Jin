@@ -51,14 +51,14 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
    git clone https://github.com/your-username/jin-slackbot.git
    cd jin-slackbot
 2. **Install Dependeicies**
-    npm install
+    pip install requirements.txt
 3. **Set Up Environment Variables**
     Create a .env file in the root directory and add your Slack API token and MongoDB connection string:
     SLACK_API_TOKEN=your-slack-api-token
     MONGODB_URI=your-mongodb-connection-string
 
 4. **Start the Bot**
-    - If you want to start server on laptop: npm start
+    - If you want to start server on laptop: start slackbot.py
     - If you want to start server remotely, I advise using Replit because it's free and has a clean UI 😊
 
 ### **Usage**
