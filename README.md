@@ -11,9 +11,11 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
 - **`/ping`**: Confirms Jin’s activity with a simple acknowledgment. ✅
 
 ### **Database Interactions**
-- **`/add [item]`**: Adds a new item or record to the MongoDB database.
+- **`/add [item]`**: Adds a new item or record to the MongoDB database. ✅
 - **`/list [collection]`**: Lists all items or records from a specified MongoDB collection.
-- **`/find [query]`**: Searches the MongoDB database based on a query and returns matching results.
+- **`/find [item]`**: Searches the MongoDB database based on a query and returns matching results.
+- **`/remove [item]`**: Searches the MongoDB database based on a query and returns matching results.
+
 
 ### **Notifications**
 - **Scheduled Reminders**: Set reminders for important tasks or deadlines.
@@ -49,14 +51,14 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
    git clone https://github.com/your-username/jin-slackbot.git
    cd jin-slackbot
 2. **Install Dependeicies**
-    npm install
+    pip install requirements.txt
 3. **Set Up Environment Variables**
     Create a .env file in the root directory and add your Slack API token and MongoDB connection string:
     SLACK_API_TOKEN=your-slack-api-token
     MONGODB_URI=your-mongodb-connection-string
 
 4. **Start the Bot**
-    - If you want to start server on laptop: npm start
+    - If you want to start server on laptop: start slackbot.py
     - If you want to start server remotely, I advise using Replit because it's free and has a clean UI 😊
 
 ### **Usage**

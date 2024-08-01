@@ -4,20 +4,23 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
-from environment import SIGNING_SECRET 
-from environment import SLACK_TOKEN
-from environment import MONGO_DB
 from pymongo import MongoClient
-import copy
+
+# Load environment variables from .env file
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Access environment variables
+SIGNING_SECRET = os.getenv('SIGNING_SECRET')
+SLACK_TOKEN = os.getenv('SLACK_TOKEN')
+MONGO_DB = os.getenv('MONGO_DB')
 
 app = Flask(__name__)
 
-slack_event_adapter = SlackEventAdapter(SIGNING_SECRET,'/slack/events',app)
+slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-
 BOT_ID = client.api_call("auth.test")['user_id']
-
 
 @slack_event_adapter.on('message')
 def message(payload):
@@ -25,7 +28,7 @@ def message(payload):
     channel_id = event.get('channel')
     user_id = event.get('user')
     text = event.get('text')
-    
+
     if user_id != BOT_ID:  
         connection_string = MONGO_DB
         mongo_client = MongoClient(connection_string)
@@ -54,12 +57,6 @@ def message(payload):
 
         mongo_client.close()
 
-        
-
-
-        
-
-# will record the message count every time in that specified channel from mongo
 @app.route('/message-count', methods=['POST', 'GET'])
 def message_count():
     data = request.form
@@ -70,16 +67,16 @@ def message_count():
     db = mongo_client.sample
     collection = db.count
     document = collection.find_one({'user_id': user_id, 'channel_id': channel_id})
-    
+
     if not document:
         client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
     else:
         count = document['count']
         client.chat_postMessage(channel=channel_id, text=f'You have talked for a total of {count} messages in this channel.')
-    
+
     mongo_client.close()
     return Response(), 200
-#will return every previous messages in that specified channel from mongo
+
 @app.route('/previous-messages', methods=['POST', 'GET'])
 def previous_messages():
     data = request.form
@@ -94,13 +91,14 @@ def previous_messages():
         client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
     else:
         complete_text = ""
+        count = 1
         for doc in cursor:
-            complete_text = complete_text + doc['text'] + '\n'
+            complete_text = complete_text + str(count) + '. '+ doc['text'] + '\n'
+            count+=1
         client.chat_postMessage(channel=channel_id, text=complete_text)
     mongo_client.close()
     return Response(), 200
 
-#will return every command available. ***IMPORTANT***: Please add new commands over here
 @app.route('/help', methods=['POST', 'GET'])
 def help():
     data = request.form
@@ -119,7 +117,6 @@ def help():
     client.chat_postMessage(channel=channel_id, text=complete_text)
     return Response(), 200
 
-#will return every previous messages in that specified channel from mongo
 @app.route('/ping', methods=['POST', 'GET'])
 def ping():
     data = request.form
@@ -130,6 +127,24 @@ def ping():
 
 
 
+#We will add to a unified database but when we call list, we will only get the list of what the user posted
+@app.route('/add', methods=['POST', 'GET'])
+def add():
+    data = request.form
+    user_id = data.get('user_id')
+    channel_id = data.get('channel_id')
+    user_text = data.get('text')
+    connection_string = MONGO_DB
+    mongo_client = MongoClient(connection_string)
+    db = mongo_client.sample
+    collection = db.added
+    collection.insert_one({
+            'channel_id': channel_id,
+            'user_id': user_id,
+            'text': user_text,
+    })
+    client.chat_postMessage(channel=channel_id, text=f"{user_text} has successfully been added to your list")
+    return Response(), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
