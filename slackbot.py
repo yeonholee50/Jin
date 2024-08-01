@@ -7,7 +7,8 @@ from slackeventsapi import SlackEventAdapter
 from pymongo import MongoClient
 
 # Load environment variables from .env file
-load_dotenv()
+env_path = Path('.') / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # Access environment variables
 SIGNING_SECRET = os.getenv('SIGNING_SECRET')
@@ -90,8 +91,10 @@ def previous_messages():
         client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
     else:
         complete_text = ""
+        count = 1
         for doc in cursor:
-            complete_text = complete_text + doc['text'] + '\n'
+            complete_text = complete_text + str(count) + '. '+ doc['text'] + '\n'
+            count+=1
         client.chat_postMessage(channel=channel_id, text=complete_text)
     mongo_client.close()
     return Response(), 200
@@ -120,6 +123,25 @@ def ping():
     name = data['user_name']
     channel_id = data.get('channel_id')
     client.chat_postMessage(channel=channel_id, text=f"Hi {name}👋, I'm here.")
+    return Response(), 200
+
+#We will add to a unified database but when we call list, we will only get the list of what the user posted
+@app.route('/add', methods=['POST', 'GET'])
+def add():
+    data = request.form
+    user_id = data.get('user_id')
+    channel_id = data.get('channel_id')
+    user_text = data.get('text')
+    connection_string = MONGO_DB
+    mongo_client = MongoClient(connection_string)
+    db = mongo_client.sample
+    collection = db.added
+    collection.insert_one({
+            'channel_id': channel_id,
+            'user_id': user_id,
+            'text': user_text,
+    })
+    client.chat_postMessage(channel=channel_id, text=f"{user_text} has successfully been added to your list")
     return Response(), 200
 
 if __name__ == "__main__":
