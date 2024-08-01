@@ -12,9 +12,9 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
 
 ### **Database Interactions**
 - **`/add [item]`**: Adds a new item or record to the MongoDB database. ✅
-- **`/list [collection]`**: Lists all items or records from a specified MongoDB collection.
-- **`/find [item]`**: Searches the MongoDB database based on a query and returns matching results.
-- **`/remove [item]`**: Searches the MongoDB database based on a query and returns matching results.
+- **`/list [collection]`**: Lists all items or records from a specified MongoDB collection. ✅
+- **`/find [item]`**: Searches the MongoDB database based on a query and returns matching results. ✅
+- **`/delete [item]`**: Searches the MongoDB database based on a query and returns matching results. ✅
 
 
 ### **Notifications**
