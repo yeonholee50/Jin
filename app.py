@@ -5,6 +5,10 @@ from dotenv import load_dotenv
 from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
 from pymongo import MongoClient
+from commands.add import add_item
+from commands.list_items import list_items
+from commands.find_item import find_item
+from commands.remove_item import remove_item
 
 # Load environment variables from .env file
 env_path = Path('.') / '.env'
@@ -131,84 +135,19 @@ def ping():
 
 @app.route('/add', methods=['POST', 'GET'])
 def add():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
-    user_text = data.get('text')
-    connection_string = MONGO_DB
-    mongo_client = MongoClient(connection_string)
-    db = mongo_client.sample
-    collection = db.added
-    collection.insert_one({
-            'channel_id': channel_id,
-            'user_id': user_id,
-            'text': user_text,
-    })
-    client.chat_postMessage(channel=channel_id, text=f"{user_text} has successfully been added to your list")
-    return Response(), 200
+    return add_item()
 
 @app.route('/list', methods=['POST', 'GET'])
-def list_items():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
-    connection_string = MONGO_DB
-    mongo_client = MongoClient(connection_string)
-    db = mongo_client.sample
-    collection = db.added
-    cursor = collection.find({'user_id': user_id})
-    if not cursor:
-        client.chat_postMessage(channel=channel_id, text='Your list is currently empty.')
-    else:
-        complete_text = ""
-        count = 1
-        for doc in cursor:
-            complete_text = complete_text + str(count) + '. ' + doc['text'] + '\n'
-            count += 1
-        client.chat_postMessage(channel=channel_id, text=complete_text)
-    mongo_client.close()
-    return Response(), 200
+def list():
+    return list_items()
 
 @app.route('/find', methods=['POST', 'GET'])
-def find_item():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
-    item_text = data.get('text')
-    connection_string = MONGO_DB
-    mongo_client = MongoClient(connection_string)
-    db = mongo_client.sample
-    collection = db.added
-    cursor = collection.find({'user_id': user_id, 'text': {'$regex': item_text, '$options': 'i'}})
-    if not cursor:
-        client.chat_postMessage(channel=channel_id, text=f'No items found matching "{item_text}".')
-    else:
-        complete_text = ""
-        count = 1
-        for doc in cursor:
-            complete_text = complete_text + str(count) + '. ' + doc['text'] + '\n'
-            count += 1
-        client.chat_postMessage(channel=channel_id, text=complete_text)
-    mongo_client.close()
-    return Response(), 200
+def find():
+    return find_item()
 
-@app.route('/delete', methods=['POST', 'GET'])
-def remove_item():
-    data = request.form
-    user_id = data.get('user_id')
-    channel_id = data.get('channel_id')
-    item_text = data.get('text')
-    connection_string = MONGO_DB
-    mongo_client = MongoClient(connection_string)
-    db = mongo_client.sample
-    collection = db.added
-    result = collection.delete_many({'user_id': user_id, 'text': {'$regex': item_text, '$options': 'i'}})
-    if result.deleted_count == 0:
-        client.chat_postMessage(channel=channel_id, text=f'No items found matching "{item_text}".')
-    else:
-        client.chat_postMessage(channel=channel_id, text=f'Successfully removed {result.deleted_count} item(s) matching "{item_text}".')
-    mongo_client.close()
-    return Response(), 200
+@app.route('/remove', methods=['POST', 'GET'])
+def remove():
+    return remove_item()
 
 if __name__ == "__main__":
     app.run(debug=True)
