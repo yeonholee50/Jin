@@ -22,6 +22,9 @@ def list_items():
         for doc in cursor:
             complete_text = complete_text + str(count) + '. ' + doc['text'] + '\n'
             count += 1
-        client.chat_postMessage(channel=channel_id, text=complete_text)
+        if len(complete_text) == 0:
+            client.chat_postMessage(channel=channel_id, text='User list is currently empty.')
+        else:   
+            client.chat_postMessage(channel=channel_id, text=complete_text)
     mongo_client.close()
     return Response(), 200

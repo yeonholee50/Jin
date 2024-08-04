@@ -6,8 +6,10 @@ from flask import Flask, request, Response
 from slackeventsapi import SlackEventAdapter
 from pymongo import MongoClient
 from commands.add import add_item
-from commands.list_items import list_items
+from commands.clear import clear_items
+from commands.update_item import update_item
 from commands.find_item import find_item
+from commands.list_items import list_items
 from commands.remove_item import remove_item
 
 # Load environment variables from .env file
@@ -73,7 +75,7 @@ def message_count():
     document = collection.find_one({'user_id': user_id, 'channel_id': channel_id})
 
     if not document:
-        client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
+        client.chat_postMessage(channel=channel_id, text='You have talked for a total of 0 messages in this channel')
     else:
         count = document['count']
         client.chat_postMessage(channel=channel_id, text=f'You have talked for a total of {count} messages in this channel.')
@@ -91,13 +93,13 @@ def previous_messages():
     db = mongo_client.sample
     collection = db.text_history
     cursor = collection.find({'user_id': user_id, 'channel_id': channel_id})
-    if not cursor:
-        client.chat_postMessage(channel=channel_id, text='you have talked for a total of 0 messages in this channel')
+    if cursor.count() == 0:
+        client.chat_postMessage(channel=channel_id, text='You have talked for a total of 0 messages in this channel')
     else:
         complete_text = ""
         count = 1
         for doc in cursor:
-            complete_text = complete_text + str(count) + '. '+ doc['text'] + '\n'
+            complete_text += f"{count}. {doc['text']}\n"
             count += 1
         client.chat_postMessage(channel=channel_id, text=complete_text)
     mongo_client.close()
@@ -116,12 +118,13 @@ def help():
         '• /add [item]': 'Use this to add an item to your list',
         '• /list': 'Use this to list all items in your list',
         '• /find [item]': 'Use this to find an item in your list',
-        '• /remove [item]': 'Use this to remove an item from your list'
+        '• /remove [item]': 'Use this to remove an item from your list',
+        '• /clear': 'Use this to clear all items from your list',
+        '• /update [item] [new_item]': 'Use this to update an existing item to a new one'
     }
     complete_text = f"Hey {name}. These are the list of commands your current version of Jin supports: \n"
-    for command in commands.keys():
-        text_to_add = command + ': ' + commands[command] + '\n'
-        complete_text = complete_text + text_to_add
+    for command, description in commands.items():
+        complete_text += f"{command}: {description}\n"
     client.chat_postMessage(channel=channel_id, text=complete_text)
     return Response(), 200
 
@@ -148,6 +151,14 @@ def find():
 @app.route('/remove', methods=['POST', 'GET'])
 def remove():
     return remove_item()
+
+@app.route('/clear', methods=['POST', 'GET'])
+def clear():
+    return clear_items()
+
+@app.route('/update', methods=['POST', 'GET'])
+def update():
+    return update_item()
 
 if __name__ == "__main__":
     app.run(debug=True)
