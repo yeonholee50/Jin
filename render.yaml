@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: slackbot
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: SIGNING_SECRET
+        value: "<your-signing-secret>"
+      - key: SLACK_TOKEN
+        value: "<your-slack-token>"
+      - key: MONGO_DB
+        value: "<your-mongodb-connection-string>"
+    routes:
+      - type: path
+        path: "/"
+        redirect: "/index.html"
