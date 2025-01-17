@@ -51,7 +51,7 @@ Jin is a versatile Slackbot designed to enhance your Slack experience by integra
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/jin-slackbot.git
+   git clone https://github.com/yeonholee50/jin-slackbot.git
    cd jin-slackbot
 2. **Install Dependeicies**
     pip install requirements.txt
